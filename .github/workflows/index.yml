@@ -1,0 +1,33 @@
+name: Cache Example
+
+on:
+  workflow_dispatch: # Trigger manually
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Cache pip dependencies
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: cache-0e1cb7f
+
+      # Install dependencies only if cache miss
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Echo cache hit/miss result
+      - name: prime-cache-0e1cb7f
+        run: echo "Cache status: ${{ steps.cache.outputs.cache-hit }}"
