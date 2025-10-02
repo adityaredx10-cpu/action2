@@ -1,9 +1,7 @@
 name: Cache Example
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [ main ]
+  workflow_dispatch: # manually trigger
 
 jobs:
   build:
@@ -17,14 +15,9 @@ jobs:
         id: cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
+          path: ~/.cache/mydeps   # replace with your dependencies path
           key: cache-0e1cb7f
-
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
 
       - name: prime-cache-0e1cb7f
         run: echo "Cache status: ${{ steps.cache.outputs.cache-hit }}"
+
