@@ -1,7 +1,9 @@
-name: Cache Example
+name: Cache Workflow
 
 on:
-  workflow_dispatch: # manually trigger
+  push:
+    branches: [ main ]
+  pull_request:
 
 jobs:
   build:
@@ -12,12 +14,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Cache dependencies
-        id: cache
+        id: cache-deps
         uses: actions/cache@v4
         with:
-          path: ~/.cache/mydeps   # replace with your dependencies path
+          path: ~/.cache/dependencies
           key: cache-0e1cb7f
 
       - name: prime-cache-0e1cb7f
-        run: echo "Cache status: ${{ steps.cache.outputs.cache-hit }}"
+        run: echo "Cache status: ${{ steps.cache-deps.outputs.cache-hit }}"
+
 
