@@ -1,26 +1,61 @@
-name: Cache Workflow
+name: Dependency Cache Example
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cache dependencies
-        id: cache-deps
+      # 
+      # Step to prime and restore the cache
+      #
+      - name: prime-cache-0e1cb7f
+        id: cache-dependencies  # Use an ID to reference the step's outputs
         uses: actions/cache@v4
         with:
-          path: ~/.cache/dependencies
+          path: |
+            ~/cache-dir/  # Replace this with the actual path to your dependencies (e.g., node_modules, ~/.m2/repository)
+            # Add other dependency paths here if needed
           key: cache-0e1cb7f
-
-      - name: prime-cache-0e1cb7f
-        run: echo "Cache status: ${{ steps.cache-deps.outputs.cache-hit }}"
-
-
+          # The restore-keys are optional but recommended for soft misses
+          # restore-keys: | 
+          #   cache-
+        
+      # 
+      # Step to echo the cache hit/miss result
+      #
+      - name: Echo Cache Result
+        run: |
+          if ${{ steps.cache-dependencies.outputs.cache-hit == 'true' }}; then
+            echo "✅ Cache hit for key 'cache-0e1cb7f'. Dependencies restored."
+          else
+            echo "⚠️ Cache miss for key 'cache-0e1cb7f'. Dependencies will be rebuilt and saved."
+          fi
+          
+      # 
+      # Hypothetical dependency installation step
+      #
+      - name: Install Dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          # Replace this with your actual dependency installation command
+          echo "Installing dependencies (e.g., npm install or mvn clean install)"
+          mkdir -p ~/cache-dir/  # Create the directory for the example
+          touch ~/cache-dir/deps-installed.txt
+          
+      # 
+      # Hypothetical build/test step
+      #
+      - name: Build and Test
+        run: |
+          echo "Running build and tests..."
+          # Your build/test commands go here
